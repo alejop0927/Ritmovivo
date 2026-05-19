@@ -1,11 +1,7 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api";
 
-async function request<T>(
-  endpoint: string,
-  options: RequestInit = {}
-): Promise<T> {
-  const token =
-    typeof window !== "undefined" ? localStorage.getItem("rv_token") : null;
+async function request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+  const token = typeof window !== "undefined" ? localStorage.getItem("rv_token") : null;
 
   const res = await fetch(`${API_URL}${endpoint}`, {
     ...options,
@@ -15,6 +11,8 @@ async function request<T>(
       ...options.headers,
     },
   });
+
+  if (res.status === 204) return undefined as T;
 
   const data = await res.json();
 
@@ -31,5 +29,7 @@ export const api = {
     request<T>(endpoint, { method: "POST", body: JSON.stringify(body) }),
   put: <T>(endpoint: string, body: unknown) =>
     request<T>(endpoint, { method: "PUT", body: JSON.stringify(body) }),
+  patch: <T>(endpoint: string, body: unknown) =>
+    request<T>(endpoint, { method: "PATCH", body: JSON.stringify(body) }),
   delete: <T>(endpoint: string) => request<T>(endpoint, { method: "DELETE" }),
 };

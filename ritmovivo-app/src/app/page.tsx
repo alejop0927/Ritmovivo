@@ -1,20 +1,20 @@
 "use client";
-
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { authService } from "@/lib/auth";
+import { useAuth } from "@/lib/auth-context";
 import { Music2 } from "lucide-react";
 
 export default function HomePage() {
   const router = useRouter();
+  const { user, loading } = useAuth();
 
   useEffect(() => {
-    if (authService.isAuthenticated()) {
-      router.replace("/dashboard");
-    } else {
-      router.replace("/login");
-    }
-  }, [router]);
+    if (loading) return;
+    if (!user) { router.replace("/login"); return; }
+    if (user.rol === "admin") router.replace("/admin-dashboard");
+    else if (user.rol === "instructor") router.replace("/mis-clases");
+    else router.replace("/dashboard");
+  }, [user, loading, router]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-950 to-gray-900 flex items-center justify-center">

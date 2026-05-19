@@ -1,27 +1,37 @@
 "use client";
-
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  LayoutDashboard,
-  Music2,
-  Users,
-  Calendar,
-  User,
-  LogOut,
-  X,
-  Bot,
+  LayoutDashboard, Music2, Users, Calendar,
+  User, LogOut, X, Bot, BookOpen, Clock, GraduationCap,
+  ClipboardList, CalendarDays, Shield,
 } from "lucide-react";
 import { clsx } from "clsx";
 import { useAuth } from "@/lib/auth-context";
 
-const navItems = [
+const estudianteItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/clases", label: "Clases", icon: Music2 },
-  { href: "/instructores", label: "Instructores", icon: Users },
   { href: "/horarios", label: "Horarios", icon: Calendar },
   { href: "/practica", label: "Práctica con IA", icon: Bot },
   { href: "/perfil", label: "Mi Perfil", icon: User },
+];
+
+const instructorItems = [
+  { href: "/mis-clases", label: "Mis Clases", icon: BookOpen },
+  { href: "/mis-horarios", label: "Mis Horarios", icon: Clock },
+  { href: "/mis-estudiantes", label: "Mis Estudiantes", icon: GraduationCap },
+  { href: "/perfil", label: "Mi Perfil", icon: User },
+];
+
+const adminItems = [
+  { href: "/admin-dashboard", label: "Dashboard", icon: Shield },
+  { href: "/admin-clases", label: "Clases", icon: Music2 },
+  { href: "/admin-horarios", label: "Horarios", icon: CalendarDays },
+  { href: "/admin-instructores", label: "Instructores", icon: Users },
+  { href: "/admin-usuarios", label: "Usuarios", icon: User },
+  { href: "/admin-inscripciones", label: "Inscripciones", icon: ClipboardList },
+  { href: "/admin-reservas", label: "Reservas", icon: BookOpen },
 ];
 
 interface SidebarProps {
@@ -33,20 +43,26 @@ export function Sidebar({ open, onClose }: SidebarProps) {
   const pathname = usePathname();
   const { logout, user } = useAuth();
 
+  const navItems =
+    user?.rol === "admin"
+      ? adminItems
+      : user?.rol === "instructor"
+      ? instructorItems
+      : estudianteItems;
+
+  const rolLabel =
+    user?.rol === "admin" ? "Administrador" :
+    user?.rol === "instructor" ? "Instructor" : "Estudiante";
+
   return (
     <>
       {open && (
-        <div
-          className="fixed inset-0 z-20 bg-black/50 lg:hidden"
-          onClick={onClose}
-        />
+        <div className="fixed inset-0 z-20 bg-black/50 lg:hidden" onClick={onClose} />
       )}
-      <aside
-        className={clsx(
-          "fixed inset-y-0 left-0 z-30 flex w-64 flex-col bg-gray-900 transition-transform duration-300 lg:translate-x-0 lg:static lg:z-auto",
-          open ? "translate-x-0" : "-translate-x-full"
-        )}
-      >
+      <aside className={clsx(
+        "fixed inset-y-0 left-0 z-30 flex w-64 flex-col bg-gray-900 transition-transform duration-300 lg:translate-x-0 lg:static lg:z-auto",
+        open ? "translate-x-0" : "-translate-x-full"
+      )}>
         <div className="flex items-center justify-between px-6 py-5 border-b border-gray-700">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
@@ -66,7 +82,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
             </div>
             <div>
               <p className="text-sm font-medium text-white">{user?.nombre} {user?.apellido}</p>
-              <p className="text-xs text-gray-400 capitalize">{user?.rol}</p>
+              <p className="text-xs text-purple-400 font-medium">{rolLabel}</p>
             </div>
           </div>
         </div>

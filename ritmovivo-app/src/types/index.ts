@@ -5,7 +5,7 @@ export interface User {
   email: string;
   rol: "admin" | "instructor" | "estudiante";
   avatar?: string;
-  telefono?: string;
+  telefono?: string | null;
   createdAt: string;
 }
 
@@ -14,11 +14,22 @@ export interface AuthResponse {
   user: User;
 }
 
+export interface Instructor {
+  id: string;
+  nombre: string;
+  apellido: string;
+  especialidad: string[];
+  bio: string | null;
+  avatar?: string;
+  experiencia: number;
+  rating: number;
+}
+
 export interface Clase {
   id: string;
   nombre: string;
-  descripcion: string;
-  instructor: Instructor;
+  descripcion: string | null;
+  instructor: Instructor | null;
   nivel: "principiante" | "intermedio" | "avanzado";
   duracion: number;
   capacidad: number;
@@ -27,24 +38,13 @@ export interface Clase {
   estilo: string;
 }
 
-export interface Instructor {
-  id: string;
-  nombre: string;
-  apellido: string;
-  especialidad: string[];
-  bio: string;
-  avatar?: string;
-  experiencia: number;
-  rating: number;
-}
-
 export interface Horario {
   id: string;
   clase: Clase;
-  instructor: Instructor;
+  instructor: Instructor | null;
   fecha: string;
-  horaInicio: string;
-  horaFin: string;
+  hora_inicio: string;
+  hora_fin: string;
   salon: string;
   disponible: boolean;
 }
@@ -54,7 +54,24 @@ export interface Inscripcion {
   usuario: User;
   horario: Horario;
   estado: "activa" | "cancelada" | "completada";
-  fechaInscripcion: string;
+  created_at: string;
+}
+
+export interface Reserva {
+  id: string;
+  usuario: User;
+  horario: Horario;
+  estado: "pendiente" | "confirmada" | "cancelada";
+  created_at: string;
+}
+
+export interface Feedback {
+  id: string;
+  usuario: User;
+  clase: Clase;
+  puntuacion: number;
+  comentario: string | null;
+  created_at: string;
 }
 
 export interface ApiError {

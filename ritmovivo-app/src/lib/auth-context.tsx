@@ -1,12 +1,5 @@
 "use client";
-
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-  ReactNode,
-} from "react";
+import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { authService } from "@/lib/auth";
 import type { User } from "@/types";
@@ -29,6 +22,12 @@ interface RegisterData {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
+function getRedirectByRole(rol: string) {
+  if (rol === "admin") return "/admin-dashboard";
+  if (rol === "instructor") return "/mis-clases";
+  return "/dashboard";
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -44,14 +43,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const res = await authService.login(email, password);
     authService.saveSession(res.token, res.user);
     setUser(res.user);
-    router.push("/dashboard");
+    router.push(getRedirectByRole(res.user.rol));
   };
 
   const register = async (data: RegisterData) => {
     const res = await authService.register(data);
     authService.saveSession(res.token, res.user);
     setUser(res.user);
-    router.push("/dashboard");
+    router.push(getRedirectByRole(res.user.rol));
   };
 
   const logout = () => {
