@@ -1,35 +1,51 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api";
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001/api/v1';
 
-async function request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-  const token = typeof window !== "undefined" ? localStorage.getItem("rv_token") : null;
+function getToken(): string | null {
+  if (typeof window === 'undefined') return null;
+  return localStorage.getItem('rv_token');
+}
 
-  const res = await fetch(`${API_URL}${endpoint}`, {
-    ...options,
+async function request<T>(
+  method: string,
+  path: string,
+  body?: unknown,
+): Promise<T> {
+  const token = getToken();
+
+  const res = await fetch(`${BASE_URL}${path}`, {
+    method,
     headers: {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...options.headers,
     },
+    body: body !== undefined ? JSON.stringify(body) : undefined,
   });
 
-  if (res.status === 204) return undefined as T;
-
-  const data = await res.json();
-
-  if (!res.ok) {
-    throw new Error(data.message || "Error en la solicitud");
+  // 401 → limpiar sesión y redirigir al login automáticamente
+  if (res.status === 401) {
+    localStorage.removeItem('rv_token');
+    localStorage.removeItem('rv_user');
+    if (typeof window !== 'undefined') {
+      window.location.href = '/login';
+    }
+    throw new Error('No autorizado');
   }
 
-  return data;
+  if (!res.ok) {
+    const error = await res.json().catch(() => ({ message: 'Error desconocido' }));
+    throw new Error((error as { message?: string }).message ?? 'Error en la solicitud');
+  }
+
+  // 204 No Content
+  if (res.status === 204) return undefined as unknown as T;
+
+  return res.json() as Promise<T>;
 }
 
 export const api = {
-  get: <T>(endpoint: string) => request<T>(endpoint),
-  post: <T>(endpoint: string, body: unknown) =>
-    request<T>(endpoint, { method: "POST", body: JSON.stringify(body) }),
-  put: <T>(endpoint: string, body: unknown) =>
-    request<T>(endpoint, { method: "PUT", body: JSON.stringify(body) }),
-  patch: <T>(endpoint: string, body: unknown) =>
-    request<T>(endpoint, { method: "PATCH", body: JSON.stringify(body) }),
-  delete: <T>(endpoint: string) => request<T>(endpoint, { method: "DELETE" }),
+  get: <T>(path: string) => request<T>('GET', path),
+  post: <T>(path: string, body: unknown) => request<T>('POST', path, body),
+  put: <T>(path: string, body: unknown) => request<T>('PUT', path, body),
+  patch: <T>(path: string, body: unknown) => request<T>('PATCH', path, body),
+  delete: <T = void>(path: string) => request<T>('DELETE', path),
 };

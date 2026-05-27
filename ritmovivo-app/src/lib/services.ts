@@ -35,6 +35,7 @@ export const inscripcionesService = {
   getSolicitudesPendientes: () => api.get<Inscripcion[]>("/inscripciones/pendientes"),
   aprobar: (id: string) => api.patch<Inscripcion>(`/inscripciones/aprobar/${id}`, {}),
   rechazar: (id: string) => api.patch<Inscripcion>(`/inscripciones/rechazar/${id}`, {}),
+  cancelar: (id: string) => api.delete<Inscripcion>(`/inscripciones/${id}`),
   getAll: () => api.get<Inscripcion[]>("/inscripciones/todas"),
   // Instructor
   getByInstructor: () => api.get<Inscripcion[]>("/inscripciones/instructor/mis-inscripciones"),

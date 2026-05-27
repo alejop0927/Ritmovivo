@@ -31,8 +31,7 @@ export default function HorariosEstudiantePage() {
         const ids = new Set(
           misReservas
             .filter((r) => r.estado !== "cancelada")
-            .map((r) => r.horario_id ?? r.horario?.id)
-            .filter(Boolean) as string[]
+            .map((r) => r.horario.id)
         );
         setReservados(ids);
       })
