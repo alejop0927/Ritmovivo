@@ -68,8 +68,10 @@ types/
 
 ## Demo desplegado
 
-[https://tu-frontend.vercel.app](https://tu-frontend.vercel.app)
+https://ritmovivo.vercel.app/
 
 ## Screenshots
 
-> Agregar capturas de pantalla del dashboard, formularios y vistas principales.
+![alt text](image.png)
+
+![alt text](image-1.png)
